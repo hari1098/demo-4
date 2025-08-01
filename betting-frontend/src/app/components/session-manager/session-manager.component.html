@@ -1,0 +1,93 @@
+<div class="session-manager">
+  <div class="session-card">
+    <h2>Betting Session Manager</h2>
+    
+    <div *ngIf="!currentSession" class="session-form">
+      <form [formGroup]="sessionForm" (ngSubmit)="startSession()">
+        <div class="form-group">
+          <label for="sessionId">Session ID</label>
+          <input 
+            id="sessionId"
+            type="text" 
+            formControlName="sessionId" 
+            placeholder="Enter unique session ID"
+            class="form-control">
+          <div *ngIf="sessionForm.get('sessionId')?.invalid && sessionForm.get('sessionId')?.touched" 
+               class="error-message">
+            Session ID is required (minimum 3 characters)
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="duration">Duration (minutes)</label>
+            <input 
+              id="duration"
+              type="number" 
+              formControlName="durationMinutes" 
+              min="1" 
+              max="60"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="interval">Update Interval (seconds)</label>
+            <input 
+              id="interval"
+              type="number" 
+              formControlName="taskIntervalSeconds" 
+              min="5" 
+              max="60"
+              class="form-control">
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          [disabled]="sessionForm.invalid || loading"
+          class="btn btn-primary">
+          <span *ngIf="loading" class="spinner"></span>
+          {{ loading ? 'Starting...' : 'Start Session' }}
+        </button>
+      </form>
+    </div>
+
+    <div *ngIf="currentSession" class="active-session">
+      <div class="session-info">
+        <h3>Active Session: {{ currentSession.sessionId }}</h3>
+        <div class="session-details">
+          <div class="detail-item">
+            <span class="label">Status:</span>
+            <span class="value" [class.active]="currentSession.active" [class.inactive]="!currentSession.active">
+              {{ currentSession.active ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Duration:</span>
+            <span class="value">{{ currentSession.durationMinutes }} minutes</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Time Remaining:</span>
+            <span class="value time-remaining">{{ getSessionTimeRemaining() }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Started:</span>
+            <span class="value">{{ currentSession.startTime | date:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <button 
+        (click)="stopSession()" 
+        [disabled]="loading"
+        class="btn btn-danger">
+        <span *ngIf="loading" class="spinner"></span>
+        {{ loading ? 'Stopping...' : 'Stop Session' }}
+      </button>
+    </div>
+
+    <div *ngIf="error" class="error-alert">
+      {{ error }}
+    </div>
+  </div>
+</div>
